@@ -1,0 +1,764 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>WishFlow — Gestão Inteligente de Itens & Desejos</title>
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#f5f3ff',
+              100: '#ede9fe',
+              200: '#ddd6fe',
+              300: '#c4b5fd',
+              400: '#a78bfa',
+              500: '#8b5cf6',
+              600: '#7c3aed',
+              700: '#6d28d9',
+              800: '#5b21b6',
+              900: '#4c1d95',
+            },
+            darkBg: '#090d16',
+            cardBg: '#131b2e'
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- Canvas Confetti -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="/static/css/custom.css" />
+</head>
+<body class="bg-[#090d16] text-gray-100 min-h-screen transition-colors duration-300 relative selection:bg-indigo-500 selection:text-white">
+
+  <!-- Glows de Fundo Ambiente Decorativos -->
+  <div class="fixed inset-0 pointer-events-none overflow-hidden -z-10">
+    <div class="absolute -top-40 -left-40 w-96 h-96 bg-purple-600/15 rounded-full blur-3xl"></div>
+    <div class="absolute top-1/3 -right-40 w-96 h-96 bg-indigo-600/15 rounded-full blur-3xl"></div>
+    <div class="absolute -bottom-40 left-1/3 w-96 h-96 bg-emerald-600/10 rounded-full blur-3xl"></div>
+  </div>
+
+  <!-- Toast Notification Container -->
+  <div id="toast-container" class="fixed top-5 right-5 z-50 flex flex-col gap-2.5 max-w-sm pointer-events-none"></div>
+
+  <!-- ========================================== -->
+  <!-- TELA 1: LOGIN E CADASTRO (GLASSMORPHISM)   -->
+  <!-- ========================================== -->
+  <section id="auth-view" class="min-h-screen flex items-center justify-center p-4">
+    <div class="w-full max-w-md">
+      
+      <!-- Brand Header -->
+      <div class="text-center mb-8">
+        <div class="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-tr from-indigo-600 via-purple-600 to-pink-500 shadow-xl shadow-indigo-500/25 mb-4 border border-white/20">
+          <i data-lucide="sparkles" class="w-8 h-8 text-white"></i>
+        </div>
+        <h1 class="text-3xl font-extrabold tracking-tight">
+          Wish<span class="gradient-text-brand">Flow</span>
+        </h1>
+        <p class="text-sm text-gray-400 mt-1">
+          Sua mente organizada. Seus desejos realizados com clareza.
+        </p>
+      </div>
+
+      <!-- Glassmorphic Auth Card -->
+      <div class="glass-panel rounded-3xl p-6 sm:p-8 shadow-2xl relative overflow-hidden">
+        
+        <!-- Toggle Tabs -->
+        <div class="flex p-1 bg-gray-900/60 rounded-xl mb-6 border border-white/5">
+          <button id="tab-btn-login" class="flex-1 py-2 rounded-lg text-sm font-semibold transition-all bg-indigo-600 text-white shadow">
+            Entrar
+          </button>
+          <button id="tab-btn-register" class="flex-1 py-2 rounded-lg text-sm font-semibold text-gray-400 hover:text-white transition-all">
+            Criar Conta
+          </button>
+        </div>
+
+        <!-- Formulário de Login -->
+        <form id="form-login" class="space-y-4">
+          <div>
+            <label class="block text-xs font-semibold text-gray-300 uppercase tracking-wider mb-1.5">E-mail</label>
+            <div class="relative">
+              <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-gray-400">
+                <i data-lucide="mail" class="w-4 h-4"></i>
+              </span>
+              <input type="email" id="login-email" required placeholder="seu@email.com" 
+                class="w-full pl-10 pr-4 py-2.5 bg-gray-900/60 border border-gray-700/60 rounded-xl text-sm text-white placeholder-gray-500 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition" />
+            </div>
+          </div>
+
+          <div>
+            <div class="flex justify-between items-center mb-1.5">
+              <label class="block text-xs font-semibold text-gray-300 uppercase tracking-wider">Senha</label>
+            </div>
+            <div class="relative">
+              <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-gray-400">
+                <i data-lucide="lock" class="w-4 h-4"></i>
+              </span>
+              <input type="password" id="login-password" required placeholder="••••••••" 
+                class="w-full pl-10 pr-4 py-2.5 bg-gray-900/60 border border-gray-700/60 rounded-xl text-sm text-white placeholder-gray-500 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition" />
+            </div>
+          </div>
+
+          <button type="submit" class="w-full py-3 bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-bold rounded-xl shadow-lg shadow-indigo-600/30 transition transform hover:-translate-y-0.5 active:translate-y-0 flex items-center justify-center gap-2">
+            <span>Acessar Painel</span>
+            <i data-lucide="arrow-right" class="w-4 h-4"></i>
+          </button>
+        </form>
+
+        <!-- Formulário de Cadastro -->
+        <form id="form-register" class="space-y-4 hidden">
+          <div>
+            <label class="block text-xs font-semibold text-gray-300 uppercase tracking-wider mb-1.5">Nome Completo</label>
+            <div class="relative">
+              <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-gray-400">
+                <i data-lucide="user" class="w-4 h-4"></i>
+              </span>
+              <input type="text" id="reg-name" required placeholder="Como prefere ser chamado?" 
+                class="w-full pl-10 pr-4 py-2.5 bg-gray-900/60 border border-gray-700/60 rounded-xl text-sm text-white placeholder-gray-500 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition" />
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-gray-300 uppercase tracking-wider mb-1.5">E-mail</label>
+            <div class="relative">
+              <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-gray-400">
+                <i data-lucide="mail" class="w-4 h-4"></i>
+              </span>
+              <input type="email" id="reg-email" required placeholder="seu@email.com" 
+                class="w-full pl-10 pr-4 py-2.5 bg-gray-900/60 border border-gray-700/60 rounded-xl text-sm text-white placeholder-gray-500 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition" />
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-gray-300 uppercase tracking-wider mb-1.5">Senha (Mín. 6 dígitos)</label>
+            <div class="relative">
+              <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-gray-400">
+                <i data-lucide="lock" class="w-4 h-4"></i>
+              </span>
+              <input type="password" id="reg-password" required minlength="6" placeholder="••••••••" 
+                class="w-full pl-10 pr-4 py-2.5 bg-gray-900/60 border border-gray-700/60 rounded-xl text-sm text-white placeholder-gray-500 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition" />
+            </div>
+          </div>
+
+          <button type="submit" class="w-full py-3 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white font-bold rounded-xl shadow-lg shadow-purple-600/30 transition transform hover:-translate-y-0.5 active:translate-y-0 flex items-center justify-center gap-2">
+            <span>Criar Conta Gratuita</span>
+            <i data-lucide="sparkles" class="w-4 h-4"></i>
+          </button>
+        </form>
+
+        <!-- Divisor com Opção Rápida de Demonstração -->
+        <div class="relative my-6 text-center">
+          <div class="absolute inset-0 flex items-center"><div class="w-full border-t border-gray-700/60"></div></div>
+          <span class="relative px-3 bg-gray-900/90 text-xs text-gray-400 uppercase tracking-widest rounded">ou experimente já</span>
+        </div>
+
+        <!-- Botão Demo Instantâneo sem atrito -->
+        <button id="btn-demo-access" type="button" class="w-full py-2.5 px-4 rounded-xl bg-gray-800/80 hover:bg-gray-800 text-gray-200 border border-gray-700 hover:border-gray-500 text-xs font-semibold flex items-center justify-center gap-2 transition group shadow-sm">
+          <i data-lucide="play-circle" class="w-4 h-4 text-emerald-400 group-hover:scale-110 transition"></i>
+          <span>Entrar como Convidado (Modo Demonstração)</span>
+        </button>
+
+        <div class="mt-6 flex items-center justify-center gap-4 text-xs text-gray-400">
+          <span class="flex items-center gap-1"><i data-lucide="shield-check" class="w-3.5 h-3.5 text-emerald-400"></i> Criptografia Segura</span>
+          <span>•</span>
+          <span class="flex items-center gap-1"><i data-lucide="zap" class="w-3.5 h-3.5 text-amber-400"></i> 100% Responsivo</span>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ========================================== -->
+  <!-- TELA 2: DASHBOARD PRINCIPAL                -->
+  <!-- ========================================== -->
+  <div id="dashboard-view" class="hidden flex flex-col min-h-screen">
+    
+    <!-- Top Navbar -->
+    <header class="sticky top-0 z-30 glass-panel border-b border-white/5 transition">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+        
+        <!-- Logo & Marca -->
+        <div class="flex items-center gap-3">
+          <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-indigo-600 to-pink-500 flex items-center justify-center text-white shadow-md shadow-indigo-600/30">
+            <i data-lucide="sparkles" class="w-5 h-5"></i>
+          </div>
+          <div>
+            <h1 class="text-lg font-extrabold tracking-tight leading-none">
+              Wish<span class="gradient-text-brand">Flow</span>
+            </h1>
+            <span class="text-[10px] text-gray-400 font-medium">Gestão de Itens & Sonhos</span>
+          </div>
+        </div>
+
+        <!-- Ações do Header -->
+        <div class="flex items-center gap-3">
+          <!-- Botão Novo Item -->
+          <button onclick="openCreateModal('quero')" class="hidden sm:flex items-center gap-2 px-3.5 py-2 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-semibold text-xs shadow-md shadow-indigo-600/30 transition transform hover:-translate-y-0.5">
+            <i data-lucide="plus-circle" class="w-4 h-4"></i>
+            <span>Adicionar Item</span>
+          </button>
+
+          <!-- Toggle Dark / Light -->
+          <button id="theme-toggle-btn" class="w-9 h-9 rounded-xl bg-gray-800/80 hover:bg-gray-700/80 text-gray-300 flex items-center justify-center border border-white/10 transition" title="Alternar tema">
+            <i data-lucide="sun" class="w-4 h-4"></i>
+          </button>
+
+          <!-- Perfil do Usuário Dropdown / Info -->
+          <div class="flex items-center gap-2 pl-2 border-l border-gray-700/60">
+            <div id="user-display-avatar" class="w-8 h-8 rounded-full bg-gradient-to-tr from-indigo-500 to-purple-500 text-white font-bold text-xs flex items-center justify-center shadow">
+              AS
+            </div>
+            <div class="hidden md:block text-left">
+              <div id="user-display-name" class="text-xs font-bold text-gray-200 leading-tight">Alexandre Silva</div>
+              <div id="user-display-email" class="text-[10px] text-gray-400 leading-tight">demo@wishflow.com</div>
+            </div>
+            <button id="btn-logout" class="p-1.5 rounded-lg text-gray-400 hover:text-rose-400 hover:bg-rose-500/10 transition ml-1" title="Sair da conta">
+              <i data-lucide="log-out" class="w-4 h-4"></i>
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+      
+      <!-- Quick Stats & Motivation Bar -->
+      <section class="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
+        
+        <div class="glass-panel rounded-2xl p-4 flex items-center justify-between border">
+          <div>
+            <span class="text-[11px] font-semibold text-gray-400 uppercase tracking-wider">Total de Itens</span>
+            <div id="stat-total-items" class="text-2xl font-black text-white mt-0.5">0</div>
+          </div>
+          <div class="w-10 h-10 rounded-xl bg-indigo-500/10 text-indigo-400 flex items-center justify-center border border-indigo-500/20">
+            <i data-lucide="layers" class="w-5 h-5"></i>
+          </div>
+        </div>
+
+        <div class="glass-panel rounded-2xl p-4 flex items-center justify-between border">
+          <div>
+            <span class="text-[11px] font-semibold text-emerald-400 uppercase tracking-wider">Taxa de Conquista</span>
+            <div id="stat-achievement-rate" class="text-2xl font-black text-emerald-400 mt-0.5">0%</div>
+          </div>
+          <div class="w-10 h-10 rounded-xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center border border-emerald-500/20">
+            <i data-lucide="trophy" class="w-5 h-5"></i>
+          </div>
+        </div>
+
+        <div class="glass-panel rounded-2xl p-4 flex items-center justify-between border">
+          <div>
+            <span class="text-[11px] font-semibold text-purple-400 uppercase tracking-wider">Valor em Desejos</span>
+            <div id="stat-wishlist-value" class="text-xl sm:text-2xl font-black text-purple-400 mt-0.5">R$ 0,00</div>
+          </div>
+          <div class="w-10 h-10 rounded-xl bg-purple-500/10 text-purple-400 flex items-center justify-center border border-purple-500/20">
+            <i data-lucide="sparkles" class="w-5 h-5"></i>
+          </div>
+        </div>
+
+        <div class="glass-panel rounded-2xl p-4 flex items-center justify-between border">
+          <div>
+            <span class="text-[11px] font-semibold text-amber-400 uppercase tracking-wider">Clareza & Foco</span>
+            <div class="text-base sm:text-lg font-bold text-gray-200 mt-1 flex items-center gap-1.5">
+              <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+              <span>Organizado</span>
+            </div>
+          </div>
+          <div class="w-10 h-10 rounded-xl bg-amber-500/10 text-amber-400 flex items-center justify-center border border-amber-500/20">
+            <i data-lucide="shield-check" class="w-5 h-5"></i>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- Barra de Filtros e Busca Rápida -->
+      <section class="glass-panel rounded-2xl p-3 sm:p-4 flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3 border">
+        
+        <!-- Campo de Pesquisa -->
+        <div class="relative flex-1">
+          <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-gray-400">
+            <i data-lucide="search" class="w-4 h-4"></i>
+          </span>
+          <input type="text" id="search-input" placeholder="Buscar por título ou descrição..." 
+            class="w-full pl-10 pr-4 py-2 bg-gray-900/60 border border-gray-700/60 rounded-xl text-xs sm:text-sm text-white placeholder-gray-500 focus:outline-none focus:border-indigo-500 transition" />
+        </div>
+
+        <!-- Filtros e Ordenação -->
+        <div class="flex items-center gap-2 flex-wrap">
+          
+          <!-- Filtro de Prioridade -->
+          <div class="flex items-center gap-1.5 bg-gray-900/60 border border-gray-700/60 rounded-xl px-2.5 py-1.5">
+            <i data-lucide="filter" class="w-3.5 h-3.5 text-gray-400"></i>
+            <select id="priority-filter-select" class="bg-transparent text-xs text-gray-200 focus:outline-none cursor-pointer">
+              <option value="all" class="bg-gray-900 text-gray-200">Todas as Prioridades</option>
+              <option value="alta" class="bg-gray-900 text-rose-300">Alta Prioridade</option>
+              <option value="media" class="bg-gray-900 text-amber-300">Média Prioridade</option>
+              <option value="baixa" class="bg-gray-900 text-emerald-300">Baixa Prioridade</option>
+            </select>
+          </div>
+
+          <!-- Ordenação -->
+          <div class="flex items-center gap-1.5 bg-gray-900/60 border border-gray-700/60 rounded-xl px-2.5 py-1.5">
+            <i data-lucide="arrow-up-down" class="w-3.5 h-3.5 text-gray-400"></i>
+            <select id="sort-by-select" class="bg-transparent text-xs text-gray-200 focus:outline-none cursor-pointer">
+              <option value="newest" class="bg-gray-900 text-gray-200">Mais Recentes</option>
+              <option value="price-desc" class="bg-gray-900 text-gray-200">Maior Valor</option>
+              <option value="price-asc" class="bg-gray-900 text-gray-200">Menor Valor</option>
+              <option value="title" class="bg-gray-900 text-gray-200">Alfabética (A-Z)</option>
+            </select>
+          </div>
+
+          <!-- Botão Mobile para adicionar item -->
+          <button onclick="openCreateModal('quero')" class="sm:hidden flex items-center justify-center p-2 rounded-xl bg-indigo-600 text-white font-semibold text-xs ml-auto">
+            <i data-lucide="plus" class="w-4 h-4"></i>
+          </button>
+        </div>
+
+      </section>
+
+      <!-- ============================================== -->
+      <!-- AS 3 CATEGORIAS PRINCIPAIS (GESTÃO VISUAL)    -->
+      <!-- ============================================== -->
+      <section class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
+
+        <!-- COLUNA 1: ITENS QUE EU TENHO (Inventário Atual) -->
+        <div id="column-tenho" class="column-dropzone glass-panel rounded-3xl p-4 sm:p-5 flex flex-col min-h-[580px] border border-emerald-500/20 col-tenho-glow transition duration-300">
+          
+          <!-- Header Coluna Tenho -->
+          <div class="flex items-center justify-between pb-3 mb-4 border-b border-emerald-500/20">
+            <div class="flex items-center gap-2.5">
+              <span class="w-9 h-9 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center border border-emerald-500/30 shadow-sm">
+                <i data-lucide="package-check" class="w-5 h-5"></i>
+              </span>
+              <div>
+                <h2 class="text-base font-bold text-gray-100 flex items-center gap-2">
+                  <span>Itens que eu tenho</span>
+                  <span id="count-tenho" class="text-xs px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 font-bold border border-emerald-500/30">0</span>
+                </h2>
+                <p class="text-[11px] text-gray-400">Inventário atual & patrimônio</p>
+              </div>
+            </div>
+
+            <button onclick="openCreateModal('tenho')" class="p-1.5 rounded-lg text-emerald-400 hover:bg-emerald-500/10 transition border border-transparent hover:border-emerald-500/30" title="Adicionar a Tenho">
+              <i data-lucide="plus" class="w-4 h-4"></i>
+            </button>
+          </div>
+
+          <!-- Container de Cards -->
+          <div id="cards-container-tenho" class="flex-1 space-y-4"></div>
+
+          <!-- Empty State -->
+          <div id="empty-tenho" class="hidden flex-1 flex flex-col items-center justify-center text-center p-6 text-gray-500 space-y-2 border-2 border-dashed border-gray-800 rounded-2xl">
+            <i data-lucide="box" class="w-10 h-10 text-gray-600"></i>
+            <p class="text-xs font-medium text-gray-400">Nenhum item no inventário.</p>
+            <p class="text-[11px] text-gray-400">Cadastre seus bens atuais ou arraste desejos realizados para cá!</p>
+          </div>
+        </div>
+
+
+        <!-- COLUNA 2: ITENS QUE EU QUERO (Lista de Desejos / Sonhos) -->
+        <div id="column-quero" class="column-dropzone glass-panel rounded-3xl p-4 sm:p-5 flex flex-col min-h-[580px] border border-purple-500/20 col-quero-glow transition duration-300">
+          
+          <!-- Header Coluna Quero -->
+          <div class="flex items-center justify-between pb-3 mb-4 border-b border-purple-500/20">
+            <div class="flex items-center gap-2.5">
+              <span class="w-9 h-9 rounded-xl bg-purple-500/20 text-purple-400 flex items-center justify-center border border-purple-500/30 shadow-sm">
+                <i data-lucide="sparkles" class="w-5 h-5"></i>
+              </span>
+              <div>
+                <h2 class="text-base font-bold text-gray-100 flex items-center gap-2">
+                  <span>Itens que eu quero</span>
+                  <span id="count-quero" class="text-xs px-2 py-0.5 rounded-full bg-purple-500/20 text-purple-300 font-bold border border-purple-500/30">0</span>
+                </h2>
+                <p class="text-[11px] text-gray-400">Lista de desejos & sonhos futuros</p>
+              </div>
+            </div>
+
+            <button onclick="openCreateModal('quero')" class="p-1.5 rounded-lg text-purple-400 hover:bg-purple-500/10 transition border border-transparent hover:border-purple-500/30" title="Adicionar a Desejos">
+              <i data-lucide="plus" class="w-4 h-4"></i>
+            </button>
+          </div>
+
+          <!-- Container de Cards -->
+          <div id="cards-container-quero" class="flex-1 space-y-4"></div>
+
+          <!-- Empty State -->
+          <div id="empty-quero" class="hidden flex-1 flex flex-col items-center justify-center text-center p-6 text-gray-500 space-y-2 border-2 border-dashed border-gray-800 rounded-2xl">
+            <i data-lucide="heart" class="w-10 h-10 text-gray-600"></i>
+            <p class="text-xs font-medium text-gray-400">Sua lista de desejos está vazia.</p>
+            <p class="text-[11px] text-gray-400">O que você sonha em adquirir ou realizar em breve?</p>
+          </div>
+        </div>
+
+
+        <!-- COLUNA 3: ITENS QUE EU PRECISO (Necessidades Imediatas) -->
+        <div id="column-preciso" class="column-dropzone glass-panel rounded-3xl p-4 sm:p-5 flex flex-col min-h-[580px] border border-amber-500/20 col-preciso-glow transition duration-300">
+          
+          <!-- Header Coluna Preciso -->
+          <div class="flex items-center justify-between pb-3 mb-4 border-b border-amber-500/20">
+            <div class="flex items-center gap-2.5">
+              <span class="w-9 h-9 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center border border-amber-500/30 shadow-sm">
+                <i data-lucide="zap" class="w-5 h-5"></i>
+              </span>
+              <div>
+                <h2 class="text-base font-bold text-gray-100 flex items-center gap-2">
+                  <span>Itens que eu preciso</span>
+                  <span id="count-preciso" class="text-xs px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 font-bold border border-amber-500/30">0</span>
+                </h2>
+                <p class="text-[11px] text-gray-400">Necessidades imediatas & urgentes</p>
+              </div>
+            </div>
+
+            <button onclick="openCreateModal('preciso')" class="p-1.5 rounded-lg text-amber-400 hover:bg-amber-500/10 transition border border-transparent hover:border-amber-500/30" title="Adicionar a Necessidades">
+              <i data-lucide="plus" class="w-4 h-4"></i>
+            </button>
+          </div>
+
+          <!-- Container de Cards -->
+          <div id="cards-container-preciso" class="flex-1 space-y-4"></div>
+
+          <!-- Empty State -->
+          <div id="empty-preciso" class="hidden flex-1 flex flex-col items-center justify-center text-center p-6 text-gray-500 space-y-2 border-2 border-dashed border-gray-800 rounded-2xl">
+            <i data-lucide="alert-circle" class="w-10 h-10 text-gray-600"></i>
+            <p class="text-xs font-medium text-gray-400">Sem necessidades imediatas pendentes!</p>
+            <p class="text-[11px] text-gray-400">Mantenha o foco e reserve para seus grandes objetivos.</p>
+          </div>
+        </div>
+
+      </section>
+
+    </main>
+
+  </div>
+
+
+  <!-- ========================================== -->
+  <!-- MODAL: CRIAR / EDITAR ITEM COM FOTOS       -->
+  <!-- ========================================== -->
+  <div id="item-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 modal-backdrop hidden overflow-y-auto">
+    <div class="glass-panel w-full max-w-lg rounded-3xl p-6 shadow-2xl relative border border-white/10 my-8">
+      
+      <!-- Modal Header -->
+      <div class="flex items-center justify-between pb-4 mb-4 border-b border-gray-700/60">
+        <h3 id="item-modal-title" class="text-lg font-bold text-white flex items-center gap-2">
+          Adicionar Novo Item
+        </h3>
+        <button onclick="closeItemModal()" class="w-8 h-8 rounded-xl bg-gray-800/80 hover:bg-gray-700 text-gray-400 hover:text-white flex items-center justify-center transition">
+          <i data-lucide="x" class="w-4 h-4"></i>
+        </button>
+      </div>
+
+      <!-- Form Content -->
+      <form id="item-form" class="space-y-4">
+        
+        <!-- Título -->
+        <div>
+          <label class="block text-xs font-semibold text-gray-300 uppercase tracking-wider mb-1.5">Título do Item *</label>
+          <input type="text" id="item-title-input" required placeholder="Ex: Cadeira Gamer, Monitor 4K, Viagem Japão..."
+            class="w-full px-4 py-2.5 bg-gray-900/70 border border-gray-700/70 rounded-xl text-sm text-white placeholder-gray-500 focus:outline-none focus:border-indigo-500 transition" />
+        </div>
+
+        <!-- Seletor Visual de Categoria -->
+        <div>
+          <label class="block text-xs font-semibold text-gray-300 uppercase tracking-wider mb-2">Categoria</label>
+          <div class="grid grid-cols-3 gap-2">
+            
+            <label class="cursor-pointer">
+              <input type="radio" name="modal-category" value="tenho" class="peer sr-only" />
+              <div class="p-3 rounded-xl border border-gray-700/70 bg-gray-900/60 peer-checked:border-emerald-500 peer-checked:bg-emerald-500/15 peer-checked:text-emerald-400 text-gray-400 text-center transition flex flex-col items-center gap-1">
+                <i data-lucide="package-check" class="w-5 h-5"></i>
+                <span class="text-xs font-bold">Tenho</span>
+              </div>
+            </label>
+
+            <label class="cursor-pointer">
+              <input type="radio" name="modal-category" value="quero" class="peer sr-only" checked />
+              <div class="p-3 rounded-xl border border-gray-700/70 bg-gray-900/60 peer-checked:border-purple-500 peer-checked:bg-purple-500/15 peer-checked:text-purple-400 text-gray-400 text-center transition flex flex-col items-center gap-1">
+                <i data-lucide="sparkles" class="w-5 h-5"></i>
+                <span class="text-xs font-bold">Quero</span>
+              </div>
+            </label>
+
+            <label class="cursor-pointer">
+              <input type="radio" name="modal-category" value="preciso" class="peer sr-only" />
+              <div class="p-3 rounded-xl border border-gray-700/70 bg-gray-900/60 peer-checked:border-amber-500 peer-checked:bg-amber-500/15 peer-checked:text-amber-400 text-gray-400 text-center transition flex flex-col items-center gap-1">
+                <i data-lucide="zap" class="w-5 h-5"></i>
+                <span class="text-xs font-bold">Preciso</span>
+              </div>
+            </label>
+
+          </div>
+        </div>
+
+        <!-- Prioridade e Preço Estimado -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-semibold text-gray-300 uppercase tracking-wider mb-1.5">Prioridade</label>
+            <div class="grid grid-cols-3 gap-1 bg-gray-900/60 p-1 rounded-xl border border-gray-700/60">
+              <label class="cursor-pointer">
+                <input type="radio" name="modal-priority" value="baixa" class="peer sr-only" />
+                <span class="block py-1.5 text-center text-xs font-medium rounded-lg text-gray-400 peer-checked:bg-emerald-500/20 peer-checked:text-emerald-300 peer-checked:font-bold transition">Baixa</span>
+              </label>
+              <label class="cursor-pointer">
+                <input type="radio" name="modal-priority" value="media" class="peer sr-only" checked />
+                <span class="block py-1.5 text-center text-xs font-medium rounded-lg text-gray-400 peer-checked:bg-amber-500/20 peer-checked:text-amber-300 peer-checked:font-bold transition">Média</span>
+              </label>
+              <label class="cursor-pointer">
+                <input type="radio" name="modal-priority" value="alta" class="peer sr-only" />
+                <span class="block py-1.5 text-center text-xs font-medium rounded-lg text-gray-400 peer-checked:bg-rose-500/20 peer-checked:text-rose-300 peer-checked:font-bold transition">Alta</span>
+              </label>
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-xs font-semibold text-gray-300 uppercase tracking-wider mb-1.5">Valor Estimado (R$)</label>
+            <input type="number" id="item-price-input" step="0.01" min="0" placeholder="0.00"
+              class="w-full px-3 py-2 bg-gray-900/70 border border-gray-700/70 rounded-xl text-sm text-white placeholder-gray-500 focus:outline-none focus:border-indigo-500 transition" />
+          </div>
+        </div>
+
+        <!-- Descrição -->
+        <div>
+          <label class="block text-xs font-semibold text-gray-300 uppercase tracking-wider mb-1.5">Breve Descrição ou Motivo</label>
+          <textarea id="item-desc-input" rows="2" placeholder="Por que este item é especial ou por que você precisa dele?"
+            class="w-full px-3.5 py-2 bg-gray-900/70 border border-gray-700/70 rounded-xl text-sm text-white placeholder-gray-500 focus:outline-none focus:border-indigo-500 transition resize-none"></textarea>
+        </div>
+
+        <!-- Seção de Foto: Upload Local ou Presets -->
+        <div>
+          <label class="block text-xs font-semibold text-gray-300 uppercase tracking-wider mb-1.5 flex items-center justify-between">
+            <span>Foto do Item</span>
+            <span class="text-[10px] text-gray-400">Upload ou Escolha Rápida</span>
+          </label>
+          
+          <!-- Drop Area / File Input -->
+          <div class="relative border-2 border-dashed border-gray-700/80 hover:border-indigo-500/60 rounded-2xl p-3 text-center transition bg-gray-900/40">
+            
+            <!-- Upload Placeholder -->
+            <div id="photo-upload-placeholder" class="py-2">
+              <i data-lucide="image" class="w-8 h-8 text-gray-500 mx-auto mb-1"></i>
+              <p class="text-xs text-gray-300 font-medium">Clique para escolher uma imagem do seu dispositivo</p>
+              <p class="text-[10px] text-gray-400">PNG, JPG, WebP até 4MB</p>
+            </div>
+
+            <!-- Preview Container -->
+            <div id="photo-preview-container" class="hidden relative rounded-xl overflow-hidden max-h-36 mx-auto">
+              <img id="photo-preview-img" src="" alt="Preview" class="w-full h-36 object-cover rounded-xl" />
+              <button type="button" onclick="resetPhotoPreview()" class="absolute top-2 right-2 p-1.5 rounded-lg bg-gray-950/80 hover:bg-rose-950 text-white hover:text-rose-400 transition shadow">
+                <i data-lucide="trash-2" class="w-4 h-4"></i>
+              </button>
+            </div>
+
+            <input type="file" id="photo-file-input" accept="image/*" class="absolute inset-0 opacity-0 cursor-pointer" />
+          </div>
+
+          <!-- Presets de 1 Clique -->
+          <div class="mt-2.5">
+            <span class="text-[10px] text-gray-400 block mb-1.5">Ou selecione uma foto de inspiração:</span>
+            <div id="photo-presets-container" class="flex items-center gap-2 overflow-x-auto pb-1"></div>
+          </div>
+
+          <!-- Input oculto ou opcional para URL direta -->
+          <input type="hidden" id="item-image-url-input" />
+        </div>
+
+        <!-- Botões de Ação -->
+        <div class="flex items-center justify-end gap-3 pt-3 border-t border-gray-700/60">
+          <button type="button" onclick="closeItemModal()" class="px-4 py-2.5 rounded-xl bg-gray-800 hover:bg-gray-700 text-gray-300 text-xs font-semibold transition">
+            Cancelar
+          </button>
+          <button type="submit" class="px-6 py-2.5 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white font-bold text-xs shadow-lg shadow-indigo-600/30 transition transform hover:-translate-y-0.5">
+            Salvar Item
+          </button>
+        </div>
+
+      </form>
+
+    </div>
+  </div>
+
+
+  <!-- ========================================== -->
+  <!-- MODAL: TUTORIAL DE ONBOARDING (TOUR)       -->
+  <!-- ========================================== -->
+  <div id="onboarding-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 modal-backdrop hidden">
+    <div class="glass-panel w-full max-w-lg rounded-3xl p-6 sm:p-8 shadow-2xl relative border border-white/15 overflow-hidden animate-in">
+      
+      <!-- Topo com Badge e Botão Pular -->
+      <div class="flex items-center justify-between mb-4">
+        <span id="onboarding-badge" class="text-xs font-bold px-3 py-1 rounded-full bg-indigo-500/20 text-indigo-300 border border-indigo-500/30">
+          Passo 1 de 4
+        </span>
+        <button onclick="closeOnboardingModal()" class="text-xs text-gray-400 hover:text-white transition font-medium">
+          Pular Tour
+        </button>
+      </div>
+
+      <!-- Títulos Dinâmicos -->
+      <div class="mb-4">
+        <h2 id="onboarding-title" class="text-2xl font-black text-white tracking-tight"></h2>
+        <p id="onboarding-subtitle" class="text-xs sm:text-sm text-gray-400 mt-1"></p>
+      </div>
+
+      <!-- Conteúdo do Passo -->
+      <div id="onboarding-body" class="min-h-[190px] flex flex-col justify-center"></div>
+
+      <!-- Rodapé com Progresso e Ações -->
+      <div class="flex items-center justify-between mt-6 pt-4 border-t border-gray-700/60">
+        
+        <!-- Dots -->
+        <div id="onboarding-dots" class="flex items-center gap-1.5"></div>
+
+        <!-- Botões Voltar & Avançar -->
+        <div class="flex items-center gap-2">
+          <button id="onboarding-back-btn" onclick="handleOnboardingBack()" class="px-4 py-2 rounded-xl bg-gray-800 hover:bg-gray-700 text-gray-300 text-xs font-semibold transition">
+            Voltar
+          </button>
+          <button id="onboarding-next-btn" onclick="handleOnboardingNext()" class="px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs shadow-lg shadow-indigo-600/25 transition flex items-center gap-1.5">
+            <span>Próximo</span>
+            <i data-lucide="arrow-right" class="w-4 h-4"></i>
+          </button>
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+
+
+  <!-- ========================================== -->
+  <!-- MODAL / DRAWER: CENTRAL DE AJUDA & FAQ     -->
+  <!-- ========================================== -->
+  <div id="help-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 modal-backdrop hidden overflow-y-auto">
+    <div class="glass-panel w-full max-w-xl rounded-3xl p-6 sm:p-7 shadow-2xl relative border border-white/10 my-8">
+      
+      <!-- Topo -->
+      <div class="flex items-center justify-between pb-4 mb-4 border-b border-gray-700/60">
+        <div class="flex items-center gap-2.5">
+          <div class="w-9 h-9 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center border border-amber-500/30">
+            <i data-lucide="help-circle" class="w-5 h-5"></i>
+          </div>
+          <div>
+            <h3 class="text-lg font-bold text-white">Central de Ajuda & Guia de Uso</h3>
+            <p class="text-xs text-gray-400">Instruções para extrair o melhor do WishFlow</p>
+          </div>
+        </div>
+        <button onclick="closeHelpModal()" class="w-8 h-8 rounded-xl bg-gray-800 hover:bg-gray-700 text-gray-400 hover:text-white flex items-center justify-center transition">
+          <i data-lucide="x" class="w-4 h-4"></i>
+        </button>
+      </div>
+
+      <!-- Conteúdo do FAQ (Accordion) -->
+      <div class="space-y-3">
+        
+        <!-- FAQ 1 -->
+        <div class="border border-gray-700/60 rounded-2xl overflow-hidden bg-gray-900/40">
+          <button onclick="toggleFaqItem(1)" class="w-full p-3.5 text-left flex items-center justify-between text-xs sm:text-sm font-semibold text-gray-200 hover:text-white">
+            <span class="flex items-center gap-2">
+              <i data-lucide="compass" class="w-4 h-4 text-purple-400"></i>
+              <span>Como diferenciar "Quero" vs "Preciso"?</span>
+            </span>
+            <i id="faq-icon-1" data-lucide="chevron-down" class="w-4 h-4 text-gray-400 transition-transform"></i>
+          </button>
+          <div id="faq-ans-1" class="px-4 pb-3.5 text-xs text-gray-400 space-y-1.5 hidden border-t border-gray-800">
+            <p><strong>Quero (Desejos):</strong> São aspirações que melhoram seu conforto, lazer ou estilo de vida, mas cuja ausência não prejudica seu trabalho ou saúde imediatamente. Deixe esses itens marinando aqui para evitar compras por impulso.</p>
+            <p><strong>Preciso (Necessidades):</strong> São demandas urgentes, substituição de ferramentas quebradas ou manutenções indispensáveis. Devem ter prioridade no seu planejamento financeiro.</p>
+          </div>
+        </div>
+
+        <!-- FAQ 2 -->
+        <div class="border border-gray-700/60 rounded-2xl overflow-hidden bg-gray-900/40">
+          <button onclick="toggleFaqItem(2)" class="w-full p-3.5 text-left flex items-center justify-between text-xs sm:text-sm font-semibold text-gray-200 hover:text-white">
+            <span class="flex items-center gap-2">
+              <i data-lucide="sparkles" class="w-4 h-4 text-emerald-400"></i>
+              <span>O que acontece ao mover um item para "Tenho"?</span>
+            </span>
+            <i id="faq-icon-2" data-lucide="chevron-down" class="w-4 h-4 text-gray-400 transition-transform"></i>
+          </button>
+          <div id="faq-ans-2" class="px-4 pb-3.5 text-xs text-gray-400 space-y-1 hidden border-t border-gray-800">
+            <p>Quando você adquire um item e o move para "Tenho" (seja arrastando ou pelo botão <strong>Conquistei! 🎉</strong>), o WishFlow dispara uma celebração com confetes e atualiza sua <strong>Taxa de Conquista</strong>! Isso estimula a dopamina saudável de vitória material consciente.</p>
+          </div>
+        </div>
+
+        <!-- FAQ 3 -->
+        <div class="border border-gray-700/60 rounded-2xl overflow-hidden bg-gray-900/40">
+          <button onclick="toggleFaqItem(3)" class="w-full p-3.5 text-left flex items-center justify-between text-xs sm:text-sm font-semibold text-gray-200 hover:text-white">
+            <span class="flex items-center gap-2">
+              <i data-lucide="move" class="w-4 h-4 text-indigo-400"></i>
+              <span>Como funciona o Drag & Drop?</span>
+            </span>
+            <i id="faq-icon-3" data-lucide="chevron-down" class="w-4 h-4 text-gray-400 transition-transform"></i>
+          </button>
+          <div id="faq-ans-3" class="px-4 pb-3.5 text-xs text-gray-400 space-y-1 hidden border-t border-gray-800">
+            <p>Você pode clicar e arrastar qualquer cartão de uma coluna para outra a qualquer momento. A coluna de destino brilhará para confirmar a recepção.</p>
+          </div>
+        </div>
+
+        <!-- FAQ 4 -->
+        <div class="border border-gray-700/60 rounded-2xl overflow-hidden bg-gray-900/40">
+          <button onclick="toggleFaqItem(4)" class="w-full p-3.5 text-left flex items-center justify-between text-xs sm:text-sm font-semibold text-gray-200 hover:text-white">
+            <span class="flex items-center gap-2">
+              <i data-lucide="image" class="w-4 h-4 text-amber-400"></i>
+              <span>Como adicionar fotos personalizadas?</span>
+            </span>
+            <i id="faq-icon-4" data-lucide="chevron-down" class="w-4 h-4 text-gray-400 transition-transform"></i>
+          </button>
+          <div id="faq-ans-4" class="px-4 pb-3.5 text-xs text-gray-400 space-y-1 hidden border-t border-gray-800">
+            <p>Ao criar ou editar um item, basta clicar na área de foto para fazer upload de um arquivo do seu celular ou computador. Ou, se preferir rapidez, clique em qualquer uma das fotos de inspiração sugeridas.</p>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Ações Rápidas da Central -->
+      <div class="mt-6 pt-4 border-t border-gray-700/60 flex flex-col sm:flex-row items-center justify-between gap-3">
+        <button onclick="closeHelpModal(); openOnboardingModal(0);" class="w-full sm:w-auto px-4 py-2.5 rounded-xl bg-indigo-600/20 hover:bg-indigo-600/30 text-indigo-300 border border-indigo-500/30 text-xs font-semibold flex items-center justify-center gap-2 transition">
+          <i data-lucide="repeat" class="w-4 h-4"></i>
+          <span>Rever Tutorial de Boas-Vindas</span>
+        </button>
+
+        <button id="btn-reset-demo-data" type="button" class="w-full sm:w-auto px-4 py-2.5 rounded-xl bg-gray-800 hover:bg-gray-700 text-gray-300 text-xs font-semibold flex items-center justify-center gap-2 transition">
+          <i data-lucide="rotate-ccw" class="w-4 h-4"></i>
+          <span>Recarregar Dados de Demonstração</span>
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+
+  <!-- =================================================== -->
+  <!-- BOTÃO FLUTUANTE DE AJUDA ("PRECISE DE AJUDA?")      -->
+  <!-- =================================================== -->
+  <aside class="fixed bottom-6 right-6 z-40 flex items-center gap-2">
+    
+    <!-- Tooltip convidativo com pulso suave -->
+    <div class="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-indigo-950/80 backdrop-blur-md border border-indigo-500/30 text-indigo-200 text-xs font-semibold shadow-lg animate-help-pulse cursor-pointer" onclick="openHelpModal()">
+      <span>Precisa de ajuda?</span>
+    </div>
+
+    <!-- Botão Circular Flutuante -->
+    <button onclick="openHelpModal()" class="w-13 h-13 p-3.5 rounded-2xl bg-gradient-to-tr from-indigo-600 via-purple-600 to-pink-500 hover:from-indigo-500 hover:to-pink-400 text-white shadow-xl shadow-indigo-600/40 border border-white/20 transition-all transform hover:scale-110 active:scale-95 flex items-center justify-center group" aria-label="Abrir central de ajuda e dúvidas">
+      <i data-lucide="help-circle" class="w-6 h-6 group-hover:rotate-12 transition-transform duration-300"></i>
+    </button>
+  </aside>
+
+  <!-- Script da Aplicação -->
+  <script src="/static/js/app.js"></script>
+</body>
+</html>
